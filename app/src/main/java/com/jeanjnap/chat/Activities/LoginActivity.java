@@ -23,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.jeanjnap.chat.Models.User;
 import com.jeanjnap.chat.R;
 import com.jeanjnap.chat.Util.Base64Util;
+import com.jeanjnap.chat.Util.Constants;
+import com.jeanjnap.chat.Util.PreferencesUtil;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -33,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     Base64Util base64;
 
     private FirebaseAuth mAuth;
+    private PreferencesUtil preferencesUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         actionBar.setTitle(R.string.login);
 
         base64 = new Base64Util(this);
+        preferencesUtil = new PreferencesUtil(this);
 
         //Log.i("_res", base64.stringToBase64("teste"));
         //Log.i("_res", base64.base64toString("dGVzdGU="));
@@ -54,6 +58,12 @@ public class LoginActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         pass = findViewById(R.id.pass);
         login = findViewById(R.id.login);
+
+        if(preferencesUtil.getString(Constants.EMAIL) != null){
+            email.setText(preferencesUtil.getString(Constants.EMAIL));
+            pass.setText(preferencesUtil.getString(Constants.PASS));
+            login();
+        }
 
         createAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +106,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onLoged(){
+        preferencesUtil.putString(Constants.EMAIL, email.getText().toString());
+        preferencesUtil.putString(Constants.PASS, pass.getText().toString());
+
         Intent i = new Intent(this, HomeActivity.class);
         startActivity(i);
         finish();

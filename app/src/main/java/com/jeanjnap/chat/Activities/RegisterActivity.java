@@ -24,6 +24,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.jeanjnap.chat.Models.User;
 import com.jeanjnap.chat.R;
 import com.jeanjnap.chat.Util.Base64Util;
+import com.jeanjnap.chat.Util.Constants;
+import com.jeanjnap.chat.Util.PreferencesUtil;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -31,9 +33,9 @@ public class RegisterActivity extends AppCompatActivity {
     Button register;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
-    DatabaseReference mDatabase;
-
+    private PreferencesUtil preferencesUtil;
     private Base64Util base64;
 
     @Override
@@ -48,6 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference("contatos");
 
         base64 = new Base64Util(this);
+        preferencesUtil = new PreferencesUtil(this);
 
         //Log.i("_res", base64.stringToBase64("teste"));
         //Log.i("_res", base64.base64toString("dGVzdGU="));
@@ -118,6 +121,9 @@ public class RegisterActivity extends AppCompatActivity {
     
     private void onCreated(){
         register.setText(R.string.register);
+        preferencesUtil.putString(Constants.EMAIL, email.getText().toString());
+        preferencesUtil.putString(Constants.PASS, pass.getText().toString());
+
         Intent i = new Intent(this, HomeActivity.class);
         startActivity(i);
         finish();

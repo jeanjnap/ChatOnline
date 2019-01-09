@@ -9,6 +9,9 @@ public class Base64Util {
 
     Context context;
 
+    public Base64Util() {
+    }
+
     public Base64Util(Context context) {
         this.context = context;
     }

@@ -16,17 +16,12 @@ public class HomeAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.i("_res", "position: " + position);
-
         switch (position){
             case 0:
                 return new ConversationsFragment();
-
             default:
                 return new ContactsFragment();
-
         }
-
     }
 
     @Override

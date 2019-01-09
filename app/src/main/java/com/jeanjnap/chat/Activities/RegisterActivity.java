@@ -109,7 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.i("_res", "Client saved. " + databaseError.getMessage() + ", details:: " + databaseError.getDetails());
+                Log.i("_res", "Client not saved. " + databaseError.getMessage() + ", details:: " + databaseError.getDetails());
                 onError();
             }
         });

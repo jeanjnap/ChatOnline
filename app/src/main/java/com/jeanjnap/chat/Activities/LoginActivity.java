@@ -18,8 +18,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jeanjnap.chat.Models.User;
 import com.jeanjnap.chat.R;
 import com.jeanjnap.chat.Util.Base64Util;
@@ -89,7 +92,6 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(emailStr, passStr).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                login.setText(R.string.login);
                 String msg = authResult.getUser().getEmail();
                 Log.i("_res", msg);
                 onLoged();
@@ -106,11 +108,40 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onLoged(){
-        preferencesUtil.putString(Constants.EMAIL, email.getText().toString());
-        preferencesUtil.putString(Constants.PASS, pass.getText().toString());
+        String userEmailB64 = base64.stringToBase64(email.getText().toString());
 
-        Intent i = new Intent(this, HomeActivity.class);
-        startActivity(i);
-        finish();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("contatos/" + userEmailB64);
+        ValueEventListener userListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Long res = dataSnapshot.getChildrenCount();
+
+                if(res == 0){
+                    Log.i("_res", "Email not found");
+                } else {
+                    for(DataSnapshot d:dataSnapshot.getChildren()){
+                        User user = d.getValue(User.class);
+                        Log.i("_res", "U: " +user.getNome());
+
+                        preferencesUtil.putString(Constants.NAME, user.getNome());
+                        preferencesUtil.putString(Constants.EMAIL, email.getText().toString());
+                        preferencesUtil.putString(Constants.PASS, pass.getText().toString());
+
+                        Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("_res", "loadPost:onCancelled", databaseError.toException());
+            }
+        };
+
+        mDatabase.addListenerForSingleValueEvent(userListener);
     }
 }

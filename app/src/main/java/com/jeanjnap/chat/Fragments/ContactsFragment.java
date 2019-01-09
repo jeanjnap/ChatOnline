@@ -215,6 +215,7 @@ public class ContactsFragment extends Fragment {
 
     private void onCreated(){
         add.setText(R.string.add);
+        ETemail.setText(null);
     }
 
     private void onError(){

@@ -1,5 +1,6 @@
 package com.jeanjnap.chat.Activities;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +16,12 @@ import android.view.View;
 
 import com.jeanjnap.chat.Adapters.HomeAdapter;
 import com.jeanjnap.chat.R;
+import com.jeanjnap.chat.Util.Constants;
+import com.jeanjnap.chat.Util.PreferencesUtil;
 
 public class HomeActivity extends AppCompatActivity {
+
+    PreferencesUtil preferencesUtil;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -37,6 +42,8 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        preferencesUtil = new PreferencesUtil(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,9 +90,20 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Log.i("_res", "Settings clicked");
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                Log.i("_res", "Settings clicked");
+                return true;
+
+            case R.id.action_logout:
+                Log.i("_res", "Logout clicked");
+                preferencesUtil.putString(Constants.EMAIL, null);
+                preferencesUtil.putString(Constants.PASS, null);
+
+                Intent i = new Intent(this, LoginActivity.class);
+                startActivity(i);
+                finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

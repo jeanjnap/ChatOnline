@@ -5,10 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +43,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        String s = posts.get(position);
+        final String s = posts.get(position);
 
         Bitmap bitmap = imageUtil.getBitmapFromDrawnable(R.drawable.profile);
         RoundedBitmapDrawable dr = RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
@@ -49,6 +51,13 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
         holder.photo.setImageDrawable(dr);
 
         holder.name.setText(s);
+
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("_res", s);
+            }
+        });
     }
 
     @Override
@@ -58,12 +67,14 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        ConstraintLayout layout;
         TextView name, message, hour;
         ImageView photo;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            layout = itemView.findViewById(R.id.layout);
             name = itemView.findViewById(R.id.name);
             message = itemView.findViewById(R.id.message);
             hour = itemView.findViewById(R.id.hour);

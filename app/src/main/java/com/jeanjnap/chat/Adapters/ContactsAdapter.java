@@ -1,17 +1,22 @@
 package com.jeanjnap.chat.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jeanjnap.chat.Activities.MessageActivity;
 import com.jeanjnap.chat.Models.Contact;
 import com.jeanjnap.chat.R;
 import com.jeanjnap.chat.Util.ImageUtil;
@@ -39,7 +44,7 @@ public class ContactsAdapter  extends RecyclerView.Adapter<ContactsAdapter.ViewH
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Contact c = contacts.get(position);
+        final Contact c = contacts.get(position);
 
         Bitmap bitmap = imageUtil.getBitmapFromDrawnable(R.drawable.profile);
         RoundedBitmapDrawable dr = RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
@@ -48,6 +53,16 @@ public class ContactsAdapter  extends RecyclerView.Adapter<ContactsAdapter.ViewH
 
         holder.name.setText(c.getNome());
         holder.email.setText(c.getEmail());
+
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("_res", c.getNome());
+                Intent i = new Intent(context, MessageActivity.class);
+                i.putExtra("contact", c);
+                context.startActivity(i);
+            }
+        });
     }
 
     @Override
@@ -57,12 +72,14 @@ public class ContactsAdapter  extends RecyclerView.Adapter<ContactsAdapter.ViewH
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        ConstraintLayout layout;
         TextView name, email;
         ImageView photo;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            layout = itemView.findViewById(R.id.layout);
             name = itemView.findViewById(R.id.name);
             email = itemView.findViewById(R.id.email);
             photo = itemView.findViewById(R.id.photo);

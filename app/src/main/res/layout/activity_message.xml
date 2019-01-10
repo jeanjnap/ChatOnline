@@ -32,7 +32,8 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:focusableInTouchMode="true">
 
         <EditText
             android:id="@+id/message"
@@ -45,6 +46,7 @@
             android:ems="10"
             android:hint="@string/typeHere"
             android:inputType="textCapSentences|textMultiLine"
+            android:selectAllOnFocus="false"
             android:singleLine="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/send"

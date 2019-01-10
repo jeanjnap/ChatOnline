@@ -1,15 +1,21 @@
 package com.jeanjnap.chat.Activities;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -17,15 +23,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jeanjnap.chat.Adapters.MessagesAdapter;
 import com.jeanjnap.chat.Models.Contact;
 import com.jeanjnap.chat.Models.Conversation;
 import com.jeanjnap.chat.Models.Message;
-import com.jeanjnap.chat.Models.User;
 import com.jeanjnap.chat.R;
 import com.jeanjnap.chat.Util.Base64Util;
 import com.jeanjnap.chat.Util.Constants;
 import com.jeanjnap.chat.Util.PreferencesUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +47,11 @@ public class MessageActivity extends AppCompatActivity {
 
     EditText editTextMessage;
     Button send;
+    ListView listView;
 
     String messageStr;
+
+    ArrayList<Message> messages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,9 @@ public class MessageActivity extends AppCompatActivity {
 
         Log.i("_res", "Tanlking with: " + contact.getNome() + " - " + contact.getEmail());
 
+        listView = findViewById(R.id.listView);
+        listView.setDivider(null);
+
         editTextMessage = findViewById(R.id.message);
         send = findViewById(R.id.send);
 
@@ -70,6 +83,56 @@ public class MessageActivity extends AppCompatActivity {
                 if(messageStr.length() > 0) {
                     sendMessage();
                 }
+            }
+        });
+
+        getMessages();
+    }
+
+    private void getMessages() {
+        String userEmailB64 = base64Util.stringToBase64(preferencesUtil.getString(Constants.EMAIL));
+        String contactEmailB64 = base64Util.stringToBase64(contact.getEmail());
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference(String.format("mensagens/%s/%s", userEmailB64, contactEmailB64));
+        ValueEventListener userListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Long res = dataSnapshot.getChildrenCount();
+
+                if(res == 0){
+                    Log.i("_res", "no messages found");
+                } else {
+                    messages = new ArrayList<>();
+                    for(DataSnapshot d:dataSnapshot.getChildren()){
+                        Message message = d.getValue(Message.class);
+                        messages.add(message);
+                    }
+                    initListView();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("_res", "loadPost:onCancelled", databaseError.toException());
+            }
+        };
+
+        mDatabase.addValueEventListener(userListener);
+    }
+
+    private void initListView() {
+
+        MessagesAdapter adapter = new MessagesAdapter(this, messages);
+
+        listView.setAdapter(adapter);
+
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Select the last row so it will scroll into view...
+                listView.setSelection(listView.getCount() - 1);
             }
         });
     }
@@ -90,6 +153,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.i("_res", String.format("%s sent \"%s\" to %s", preferencesUtil.getString(Constants.EMAIL), messageStr ,contact.getEmail()));
                 //Log.i("_res", "Message sent. " + dataSnapshot.getKey());
+                listView.setSelection(listView.getCount() - 1);
                 sendOuther();
             }
 
